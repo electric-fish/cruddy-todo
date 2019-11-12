@@ -28,15 +28,15 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  let path = exports.dataDir;
-  fs.readdir(path, (err, data) => {
+  fs.readdir(exports.dataDir, (err, data) => {
     if (err) {
       throw err;
     } else {
       let resultArr = _.map(data, (id, text) => {
+        let filePath = path.join(exports.dataDir, id);
         var id = id.slice(0, -4);
-        var text = id;
-        return {id, text};
+        var data = fs.readFileSync(filePath, 'utf8');
+        return {id, text: data};
       });
       callback(null, resultArr);
     }
