@@ -8,11 +8,12 @@ var items = {};
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId((err, id) => {
+  var id = counter.getNextUniqueId ((err, id) => {
     if (err) {
       throw err;
     } else {
       let fileName = path.join(exports.dataDir, `${id}.txt`);
+      // let fileName = path.join(exports.dataDir, id);
       fs.writeFile(fileName, text, (err) => {
         if (err) {
           throw err;
@@ -27,19 +28,44 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  let path = exports.dataDir;
+  fs.readdir(path, (err, data) => {
+    if (err) {
+      throw err;
+    } else {
+      let resultArr = _.map(data, (id, text) => {
+        var id = id.slice(0, -4);
+        var text = id;
+        return {id, text};
+      });
+      callback(null, resultArr);
+    }
   });
-  callback(null, data);
+  // var data = _.map(items, (text, name) => {
+  //   return { id, text };
+  // });
+  // callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+  // let path = exports.dataDir;
+  // path = path.join(path, `${id}.txt`);
+  let fileName = path.join(exports.dataDir, `${id}.txt`);
+  fs.readFile(fileName, 'utf8', (err, data) => {
+    if (err) {
+      // throw err;
+      callback(new Error(`No item with id: ${id}`));
+    } else {
+      callback(null, {id: id, text: data});
+    }
+  });
+
+  // var text = items[id];
+  // if (!text) {
+  //   callback(new Error(`No item with id: ${id}`));
+  // } else {
+  //   callback(null, { id, text });
+  // }
 };
 
 exports.update = (id, text, callback) => {
